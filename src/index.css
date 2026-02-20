@@ -1,13 +1,781 @@
-body {
+/* =============================================================================
+   index.css — BlogCraft Application Styles
+   Auteur  : VoaybeDev
+   GitHub  : https://github.com/VoaybeDev?tab=repositories
+   Version : 2.0.0
+   ============================================================================= */
+
+/* ── Google Fonts ──────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;600;700&family=Bricolage+Grotesque:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap');
+
+/* ── Reset ─────────────────────────────────────────────────────────────────── */
+*, *::before, *::after {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* =============================================================================
+   DESIGN TOKENS (CSS Custom Properties)
+   Modifier ces variables pour changer le thème global de l'application.
+   ============================================================================= */
+:root {
+  /* Gradient de fond principal */
+  --grad-bg:        linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+
+  /* Gradient des cards (glassmorphism) */
+  --grad-card:      linear-gradient(160deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+
+  /* Gradient texte accrocheur (titres) */
+  --grad-text:      linear-gradient(90deg, #f093fb 0%, #f5576c 40%, #fda085 100%);
+
+  /* Gradient bouton principal (créer) */
+  --grad-btn-primary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+
+  /* Gradient bouton édition (bleu) */
+  --grad-btn-edit:  linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+  /* Gradient bouton mise à jour (vert) */
+  --grad-btn-update: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+
+  /* Gradient bouton suppression */
+  --grad-btn-del:   linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+
+  /* Couleurs d'accent */
+  --accent:         #f5576c;
+  --accent2:        #f093fb;
+
+  /* Bordures subtiles */
+  --border:         rgba(255, 255, 255, 0.1);
+  --border-hover:   rgba(255, 255, 255, 0.18);
+
+  /* Texte */
+  --text:           rgba(255, 255, 255, 0.92);
+  --text-muted:     rgba(255, 255, 255, 0.45);
+
+  /* Rayons */
+  --radius-lg:      20px;
+  --radius-md:      14px;
+  --radius-sm:      10px;
+  --radius-pill:    50px;
+
+  /* Ombres */
+  --shadow-xl:      0 25px 70px rgba(0, 0, 0, 0.45);
+  --shadow-md:      0 8px 30px rgba(0, 0, 0, 0.3);
+  --shadow-btn-primary: 0 4px 20px rgba(245, 87, 108, 0.45);
+  --shadow-btn-edit:    0 4px 18px rgba(79, 172, 254, 0.35);
+  --shadow-btn-update:  0 4px 18px rgba(67, 233, 123, 0.35);
+  --shadow-btn-del:     0 4px 18px rgba(245, 87, 108, 0.35);
+
+  /* Transition globale */
+  --ease:           cubic-bezier(0.4, 0, 0.2, 1);
+  --transition:     all 0.25s var(--ease);
+}
+
+
+/* =============================================================================
+   BASE
+   ============================================================================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Bricolage Grotesque', sans-serif;
+  background: var(--grad-bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* =============================================================================
+   APP WRAPPER
+   Contient les blobs décoratifs en arrière-plan.
+   ============================================================================= */
+
+.app {
+  min-height: 100vh;
+  padding-bottom: 80px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Blob rose (haut gauche) */
+.app::before {
+  content: '';
+  position: fixed;
+  width: 560px;
+  height: 560px;
+  background: radial-gradient(circle, #f093fb 0%, transparent 70%);
+  border-radius: 50%;
+  top: -180px;
+  left: -140px;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Blob bleu (bas droite) */
+.app::after {
+  content: '';
+  position: fixed;
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(circle, #4facfe 0%, transparent 70%);
+  border-radius: 50%;
+  bottom: -130px;
+  right: -90px;
+  opacity: 0.2;
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+/* =============================================================================
+   NAVBAR
+   Barre de navigation sticky avec effet glassmorphism.
+   ============================================================================= */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 68px;
+  padding: 0 clamp(16px, 5vw, 60px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(15, 12, 41, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Logo / marque */
+.navbar-brand {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(1.15rem, 3vw, 1.55rem);
+  font-weight: 700;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
+}
+
+/* Compteur d'articles */
+.navbar-count {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 5px 16px;
+}
+
+
+/* =============================================================================
+   CONTAINER PRINCIPAL
+   ============================================================================= */
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 60px) clamp(16px, 5vw, 40px);
+}
+
+
+/* =============================================================================
+   TITRES DE SECTION
+   ============================================================================= */
+
+.section-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(1.5rem, 3.5vw, 2.4rem);
+  font-weight: 700;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  letter-spacing: -0.3px;
+}
+
+.section-sub {
+  font-size: 0.93rem;
+  font-weight: 300;
+  color: var(--text-muted);
+  margin-bottom: 28px;
+}
+
+
+/* =============================================================================
+   FORMULAIRE
+   ============================================================================= */
+
+/* Card du formulaire */
+.form-card {
+  background: var(--grad-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: clamp(24px, 4vw, 44px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-xl);
+  margin-bottom: 52px;
+  animation: slideDown 0.4s var(--ease) both;
+}
+
+/* Mode édition : bordure bleue */
+.form-card--edit {
+  border-color: rgba(79, 172, 254, 0.45);
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.15), var(--shadow-xl);
+}
+
+/* Grille 2 colonnes pour les champs courts */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Groupe label + input */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+}
+
+/* Champs textuels */
+input[type="text"],
+textarea,
+select {
+  width: 100%;
+  padding: 13px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 0.97rem;
+  transition: var(--transition);
+  outline: none;
+}
+
+input[type="text"]::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+  border-color: rgba(245, 87, 108, 0.6);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(245, 87, 108, 0.14);
+}
+
+textarea {
+  min-height: 115px;
+  resize: vertical;
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+select option {
+  background: #302b63;
+  color: #fff;
+}
+
+/* Zone des boutons d'action du formulaire */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+
+/* =============================================================================
+   BOUTONS
+   Convention de nommage : .btn + .btn--{variante}
+   ============================================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-size: 0.94rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* Bouton publier */
+.btn--primary {
+  background: var(--grad-btn-primary);
+  color: #fff;
+  box-shadow: var(--shadow-btn-primary);
+}
+.btn--primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(245, 87, 108, 0.55);
+}
+
+/* Bouton modifier (sur les cards) */
+.btn--edit {
+  background: var(--grad-btn-edit);
+  color: #fff;
+  box-shadow: var(--shadow-btn-edit);
+  padding: 9px 18px;
+  font-size: 0.84rem;
+}
+.btn--edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(79, 172, 254, 0.55);
+}
+
+/* Bouton mettre à jour (formulaire mode édition) */
+.btn--update {
+  background: var(--grad-btn-update);
+  color: #0f0c29;
+  box-shadow: var(--shadow-btn-update);
+}
+.btn--update:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(67, 233, 123, 0.55);
+}
+
+/* Bouton supprimer (sur les cards) */
+.btn--delete {
+  background: rgba(245, 87, 108, 0.1);
+  color: #f5576c;
+  border: 1px solid rgba(245, 87, 108, 0.3);
+  padding: 9px 18px;
+  font-size: 0.84rem;
+}
+.btn--delete:hover {
+  background: var(--grad-btn-del);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-btn-del);
+}
+
+/* Bouton annuler (formulaire mode édition) */
+.btn--cancel {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn--cancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+
+
+/* =============================================================================
+   TOPBAR (Recherche + Filtre)
+   ============================================================================= */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+/* Wrapper relatif pour l'icône de recherche */
+.search-wrap {
+  flex: 1;
+  min-width: 200px;
+  position: relative;
+}
+
+.search-wrap input {
+  padding-left: 44px;
+  margin: 0;
+}
+
+/* Icône loupe positionnée à l'intérieur de l'input */
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.95rem;
+  opacity: 0.4;
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* Select de filtre catégorie */
+.filter-select {
+  min-width: 160px;
+  flex-shrink: 0;
+}
+
+
+/* =============================================================================
+   GRILLE D'ARTICLES
+   ============================================================================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+  gap: 24px;
+}
+
+
+/* =============================================================================
+   CARD D'ARTICLE
+   ============================================================================= */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(20px, 3vw, 28px);
+  background: var(--grad-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s var(--ease);
+  animation: fadeIn 0.35s var(--ease) both;
+}
+
+/* Ligne de couleur en haut de la card (visible au hover) */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--grad-text);
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+  border-color: var(--border-hover);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+/* Card en cours d'édition : mise en valeur bleue */
+.card--editing {
+  border-color: rgba(79, 172, 254, 0.45) !important;
+  box-shadow: 0 0 0 2px rgba(79, 172, 254, 0.18), var(--shadow-md) !important;
+}
+
+/* En-tête de la card */
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Badge catégorie */
+.card-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 13px;
+  border-radius: var(--radius-pill);
+  background: rgba(240, 147, 251, 0.13);
+  color: var(--accent2);
+  border: 1px solid rgba(240, 147, 251, 0.3);
+  white-space: nowrap;
+}
+
+/* Date de publication */
+.card-date {
+  font-size: 0.73rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-weight: 300;
+}
+
+/* Titre de l'article (gradient) */
+.card-title {
+  font-family: 'Clash Display', sans-serif;
+  font-size: clamp(1rem, 2.2vw, 1.2rem);
+  font-weight: 600;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+}
+
+/* Corps / extrait de l'article */
+.card-body {
+  font-size: 0.91rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-weight: 300;
+  flex-grow: 1;
+}
+
+/* Section auteur */
+.card-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+/* Avatar avec initiales */
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--grad-btn-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+
+.author-name {
+  font-size: 0.87rem;
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.author-info {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* Actions CRUD de la card */
+.card-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+
+/* =============================================================================
+   ÉTAT VIDE (aucun article)
+   ============================================================================= */
+
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 24px;
+  color: var(--text-muted);
+}
+
+.empty-icon {
+  display: block;
+  font-size: 3rem;
+  margin-bottom: 18px;
+  opacity: 0.35;
+}
+
+.empty h3 {
+  font-family: 'Clash Display', sans-serif;
+  font-size: 1.25rem;
+  color: var(--text);
+  opacity: 0.55;
+  margin-bottom: 8px;
+}
+
+.empty p {
+  font-size: 0.9rem;
+  font-weight: 300;
+}
+
+
+/* =============================================================================
+   FOOTER — Signature VoaybeDev
+   ============================================================================= */
+
+.footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px 48px;
+}
+
+/* Lien signature */
+.signature {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 26px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 400;
+  transition: var(--transition);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.signature:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(240, 147, 251, 0.4);
+  color: var(--text);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(240, 147, 251, 0.2);
+}
+
+.signature strong {
+  font-weight: 600;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.signature-icon {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.signature-arrow {
+  font-size: 0.85rem;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  display: inline-block;
+}
+
+.signature:hover .signature-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+
+/* =============================================================================
+   ANIMATIONS
+   ============================================================================= */
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+/* Tablette */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile — grille formulaire passe à 1 colonne */
+@media (max-width: 600px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-select {
+    width: 100%;
+  }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+  .form-card {
+    padding: 22px 18px;
+  }
+
+  .card {
+    padding: 18px 16px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .card-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
